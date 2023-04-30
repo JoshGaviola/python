@@ -10,8 +10,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 # Set up the snake
 SNAKE_COLOR = (0, 255, 0)  # Green
-snake_position = [320, 240]  # Center of the screen
 SNAKE_SIZE = 20
+snake_position = [SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2]  # Center of the screen
 
 # Set up the initial direction of the snake
 snake_direction = 'right'
@@ -43,12 +43,20 @@ while running:
     # Move the snake
     if snake_direction == 'left':
         snake_position[0] -= SNAKE_SPEED
+        if snake_position[0] < 0:  # If snake goes off the left side of the screen, wrap around to the right side
+            snake_position[0] = SCREEN_WIDTH - SNAKE_SIZE
     elif snake_direction == 'right':
         snake_position[0] += SNAKE_SPEED
+        if snake_position[0] > SCREEN_WIDTH - SNAKE_SIZE:  # If snake goes off the right side of the screen, wrap around to the left side
+            snake_position[0] = 0
     elif snake_direction == 'up':
         snake_position[1] -= SNAKE_SPEED
+        if snake_position[1] < 0:  # If snake goes off the top of the screen, wrap around to the bottom
+            snake_position[1] = SCREEN_HEIGHT - SNAKE_SIZE
     elif snake_direction == 'down':
         snake_position[1] += SNAKE_SPEED
+        if snake_position[1] > SCREEN_HEIGHT - SNAKE_SIZE:  # If snake goes off the bottom of the screen, wrap around to the top
+            snake_position[1] = 0
 
     # Draw the snake
     pygame.draw.rect(screen, SNAKE_COLOR, (snake_position[0], snake_position[1], SNAKE_SIZE, SNAKE_SIZE))
