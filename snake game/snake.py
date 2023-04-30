@@ -1,3 +1,4 @@
+import random
 import pygame
 
 # Initialize Pygame
@@ -12,6 +13,12 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 SNAKE_COLOR = (0, 255, 0)  # Green
 SNAKE_SIZE = 20
 snake_position = [SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2]  # Center of the screen
+
+# Set up the food
+FOOD_COLOR = (255, 0, 0)  # Red
+FOOD_SIZE = 20
+food_position = [random.randint(0, SCREEN_WIDTH - FOOD_SIZE), random.randint(0, SCREEN_HEIGHT - FOOD_SIZE)]
+
 
 # Set up the initial direction of the snake
 snake_direction = 'right'
@@ -60,6 +67,10 @@ while running:
 
     # Draw the snake
     pygame.draw.rect(screen, SNAKE_COLOR, (snake_position[0], snake_position[1], SNAKE_SIZE, SNAKE_SIZE))
+
+    # Draw the food
+    pygame.draw.rect(screen, FOOD_COLOR, (food_position[0], food_position[1], FOOD_SIZE, FOOD_SIZE))
+
 
     # Update the screen
     pygame.display.flip()
