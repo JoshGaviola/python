@@ -1,119 +1,44 @@
-import random
-import pygame
+def next_turn(snake, food):
 
-# Initialize Pygame
-pygame.init()
+    x, y = snake.coordinates[0]
 
-# Set up the display
-SCREEN_WIDTH = 640
-SCREEN_HEIGHT = 480
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    if direction == "up":
+        y -= SPACE_SIZE
+    elif direction == "down":
+        y += SPACE_SIZE
+    elif direction == "left":
+        x -= SPACE_SIZE
+    elif direction == "right":
+        x += SPACE_SIZE
 
-# Set up the snake
-SNAKE_COLOR = (0, 255, 0)  # Green
-SNAKE_SIZE = 20
-snake_position = [SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2]  # Center of the screen
+    snake.coordinates.insert(0, (x, y))
 
-# Set up the food
-FOOD_COLOR = (255, 0, 0)  # Red
-FOOD_SIZE = 20
-food_position = [random.randint(
-    0, SCREEN_WIDTH - FOOD_SIZE), random.randint(0, SCREEN_HEIGHT - FOOD_SIZE)]
+    square = canvas.create_rectangle(x, y, x + SPACE_SIZE, y + SPACE_SIZE, fill=SNAKE_COLOR)
 
-# Set up the initial direction of the snake
-snake_direction = 'right'
+    snake.squares.insert(0, square)
 
-# Set up the snake movement speed
-SNAKE_SPEED = 5
+    if x == food.coordinates[0] and y == food.coordinates[1]:
 
-snake_length = 1
+        global score
 
-# Create a clock object
-clock = pygame.time.Clock()
+        score += 1
 
-# Game loop
-running = True
-while running:
+        label.config(text="Score:{}".format(score))
 
-    # Handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT and snake_direction != 'right':
-                snake_direction = 'left'
-            elif event.key == pygame.K_RIGHT and snake_direction != 'left':
-                snake_direction = 'right'
-            elif event.key == pygame.K_UP and snake_direction != 'down':
-                snake_direction = 'up'
-            elif event.key == pygame.K_DOWN and snake_direction != 'up':
-                snake_direction = 'down'
+        canvas.delete("food")
 
-    # Move the snake's head
-    if snake_direction == 'left':
-        snake_position[0] -= SNAKE_SPEED
-        if snake_position[0] < 0:  # If snake goes off the left side of the screen, wrap around to the right side
-            snake_position[0] = SCREEN_WIDTH - SNAKE_SIZE
-    elif snake_direction == 'right':
-        snake_position[0] += SNAKE_SPEED
-        if snake_position[0] > SCREEN_WIDTH - SNAKE_SIZE:  # If snake goes off the right side of the screen, wrap around to the left side
-            snake_position[0] = 0
-    elif snake_direction == 'up':
-        snake_position[1] -= SNAKE_SPEED
-        if snake_position[1] < 0:  # If snake goes off the top of the screen, wrap around to the bottom
-            snake_position[1] = SCREEN_HEIGHT - SNAKE_SIZE
-    elif snake_direction == 'down':
-        snake_position[1] += SNAKE_SPEED
-        if snake_position[1] > SCREEN_HEIGHT - SNAKE_SIZE:  # If snake goes off the bottom of the screen, wrap around to the top
-            snake_position[1] = 0
+        food = Food()
 
-    # Check if the snake has eaten the food
-    if pygame.Rect(snake_position[0], snake_position[1], SNAKE_SIZE, SNAKE_SIZE).colliderect(pygame.Rect(food_position[0], food_position[1], FOOD_SIZE, FOOD_SIZE)):
-        food_position = [random.randint(0, SCREEN_WIDTH - FOOD_SIZE), random.randint(0, SCREEN_HEIGHT - FOOD_SIZE)]
-        snake_length += 1
+    else:
 
-    # Move the rest of the snake's body
-    snake_positions = [snake_position.copy()]
+        del snake.coordinates[-1]
 
-    # Move the snake's head
-    if snake_direction == 'left':
-        snake_positions[0][0] -= SNAKE_SPEED
-        if snake_positions[0][0] < 0:  # If snake goes off the left side of the screen, wrap around to the right side
-            snake_positions[0][0] = SCREEN_WIDTH - SNAKE_SIZE
-    elif snake_direction == 'right':
-        snake_positions[0][0] += SNAKE_SPEED
-        if snake_positions[0][0] > SCREEN_WIDTH - SNAKE_SIZE:  # If snake goes off the right side of the screen, wrap around to the left side
-            snake_positions[0][0] = 0
-    elif snake_direction == 'up':
-        snake_positions[0][1] -= SNAKE_SPEED
-        if snake_positions[0][1] < 0:  # If snake goes off the top of the screen, wrap around to the bottom
-            snake_positions[0][1] = SCREEN_HEIGHT - SNAKE_SIZE
-    elif snake_direction == 'down':
-        snake_positions[0][1] += SNAKE_SPEED
-        if snake_positions[0][1] > SCREEN_HEIGHT - SNAKE_SIZE:  # If snake goes off the bottom of the screen, wrap around to the top
-            snake_positions[0][1] = 0
+        canvas.delete(snake.squares[-1])
 
-    # Move the rest of the snake's body
-    for i in range(1, snake_length):
-        if len(snake_positions) > i > 0:
-            snake_positions[i], snake_positions[i-1] = snake_positions[i-1], snake_positions[i]
+        del snake.squares[-1]
 
+    if check_collisions(snake):
+        game_over()
 
-    # Draw the snake
-    screen.fill((0, 0, 0))  # Clear the screen first
-    for position in snake_positions:
-        pygame.draw.rect(screen, SNAKE_COLOR,
-                         (position[0], position[1], SNAKE_SIZE, SNAKE_SIZE))
-
-    # Draw the food
-    pygame.draw.rect(screen, FOOD_COLOR,
-                     (food_position[0], food_position[1], FOOD_SIZE, FOOD_SIZE))
-
-    # Update the screen
-    pygame.display.flip()
-
-    # Control the game speed
-    clock.tick(30)
-
-# Quit Pygame
-pygame.quit()
+    else:
+        window.after(SPEED, next_turn, snake, food)
