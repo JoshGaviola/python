@@ -1,0 +1,12 @@
+from pydub import AudioSegment
+
+# Load the audio file
+audio = AudioSegment.from_file("C:\Users\user\Downloads\onlymp3.to - Dream Of Tomorrow-b7Bd9jc3gFU-192k-1700298822.mp3", format="mp3")
+
+# Shift the pitch by +2 semitones
+shifted_audio = audio._spawn(audio.raw_data, overrides={
+    "frame_rate": int(audio.frame_rate * (2 ** (2 / 12.0)))
+})
+
+# Export the shifted audio to a new file
+shifted_audio.export("shifted_music.mp3", format="mp3")
